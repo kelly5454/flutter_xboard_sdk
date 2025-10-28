@@ -326,17 +326,41 @@ class HttpService {
   DioException _handleDioError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode!;
-      final responseData = error.response!.data;
+      
+      // 先解混淆和解析响应数据
+      dynamic responseData = _deobfuscateResponse(error.response!);
       
       String errorMessage = '请求失败 (状态码: $statusCode)';
       
+      // 打印响应数据以便调试
+      print('[HttpService] Error Response (status: $statusCode): $responseData');
+      
+      // 尝试从响应中提取错误信息
       if (responseData is Map<String, dynamic>) {
-        if (responseData.containsKey('message')) {
-          errorMessage = responseData['message'];
-        } else if (responseData.containsKey('error')) {
-          errorMessage = responseData['error'];
+        // 优先级：message > error > data
+        if (responseData.containsKey('message') && 
+            responseData['message'] != null && 
+            responseData['message'].toString().isNotEmpty) {
+          errorMessage = responseData['message'].toString();
+        } else if (responseData.containsKey('error') && 
+                   responseData['error'] != null &&
+                   responseData['error'].toString().isNotEmpty) {
+          // error 可能是字符串或对象
+          final errorField = responseData['error'];
+          if (errorField is String) {
+            errorMessage = errorField;
+          } else if (errorField is Map) {
+            errorMessage = errorField.toString();
+          }
+        } else if (responseData.containsKey('data') && responseData['data'] is String) {
+          errorMessage = responseData['data'].toString();
         }
+      } else if (responseData is String && responseData.isNotEmpty) {
+        // 如果响应是纯文本，尝试提取有用信息
+        errorMessage = responseData;
       }
+      
+      print('[HttpService] Extracted error message: $errorMessage');
 
       // 创建新的DioException，保持原有的错误信息但添加我们的错误消息
       return DioException(
