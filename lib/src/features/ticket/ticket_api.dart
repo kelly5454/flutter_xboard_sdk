@@ -31,7 +31,14 @@ class TicketApi {
         'message': message,
         'level': level,
       });
-      return ApiResponse.fromJson(result, (json) => Ticket.fromJson(json as Map<String, dynamic>));
+      // API可能返回bool表示成功，而不是返回Ticket对象
+      return ApiResponse.fromJson(result, (json) {
+        if (json is Map<String, dynamic>) {
+          return Ticket.fromJson(json);
+        }
+        // 如果是bool或其他类型，返回null，表示创建成功但没有返回详情
+        return null as Ticket;
+      });
     } catch (e) {
       if (e is XBoardException) rethrow;
       throw ApiException('创建工单时发生错误: $e');
@@ -42,7 +49,14 @@ class TicketApi {
   Future<ApiResponse<TicketDetail>> getTicketDetail(int ticketId) async {
     try {
       final result = await _httpService.getRequest('/api/v1/user/ticket/fetch?id=$ticketId');
-      return ApiResponse.fromJson(result, (json) => TicketDetail.fromJson(json as Map<String, dynamic>));
+      return ApiResponse.fromJson(result, (json) {
+        // 确保messages字段存在且为列表
+        final data = json as Map<String, dynamic>;
+        if (data['messages'] == null) {
+          data['messages'] = [];
+        }
+        return TicketDetail.fromJson(data);
+      });
     } catch (e) {
       if (e is XBoardException) rethrow;
       throw ApiException('获取工单详情时发生错误: $e');

@@ -46,7 +46,7 @@ class TicketDetail with _$TicketDetail {
     @JsonKey(name: 'reply_status') required int replyStatus,
     required int status,
     required String subject,
-    required List<TicketMessage> messages,
+    @Default([]) List<TicketMessage> messages,
     @JsonKey(name: 'created_at', fromJson: _fromUnixTimestamp, toJson: _toUnixTimestamp) required DateTime createdAt,
     @JsonKey(name: 'updated_at', fromJson: _fromUnixTimestamp, toJson: _toUnixTimestamp) required DateTime updatedAt,
     @JsonKey(name: 'user_id') required int userId,
