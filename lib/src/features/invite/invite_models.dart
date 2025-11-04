@@ -39,6 +39,7 @@ class InviteInfo with _$InviteInfo {
   int get totalInvites => stat.isNotEmpty ? stat[0] : 0;
   int get validInvites => stat.length > 1 ? stat[1] : 0;
   int get totalCommission => stat.length > 2 ? stat[2] : 0;
+  int get commissionRate => stat.length > 3 ? stat[3] : 0;
 }
 
 @freezed
