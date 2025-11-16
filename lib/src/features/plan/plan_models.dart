@@ -31,7 +31,7 @@ bool _intToBool(dynamic value) {
   return false; // Default or handle error
 }
 
-int _boolToInt(bool value) => value ? 1 : 0;
+int? _boolToInt(bool? value) => value == null ? null : (value ? 1 : 0);
 
 @freezed
 class Plan with _$Plan {
@@ -44,6 +44,7 @@ class Plan with _$Plan {
     @JsonKey(name: 'speed_limit') int? speedLimit,
     @JsonKey(name: 'show', fromJson: _intToBool, toJson: _boolToInt)
     required bool show,
+    @JsonKey(fromJson: _intToBool, toJson: _boolToInt) required bool show,
     String? content,
     @JsonKey(name: 'onetime_price', fromJson: _priceFromJson, toJson: _priceToJson)
     double? onetimePrice,
@@ -67,6 +68,8 @@ class Plan with _$Plan {
     required bool sell,
     @JsonKey(name: 'renew', fromJson: _intToBool, toJson: _boolToInt)
     required bool renew,
+    @JsonKey(fromJson: _intToBool, toJson: _boolToInt, defaultValue: true) bool? sell,
+    @JsonKey(fromJson: _intToBool, toJson: _boolToInt) required bool renew,
     @JsonKey(name: 'reset_traffic_method') int? resetTrafficMethod,
     int? sort,
     @JsonKey(name: 'created_at') int? createdAt,
